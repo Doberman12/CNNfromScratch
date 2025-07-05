@@ -1,0 +1,4 @@
+dataset/
+*.json
+mnist_data/
+*.png
