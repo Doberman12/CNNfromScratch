@@ -132,13 +132,14 @@ for batch_size in batch_sizes:
         "val_accuracy": val_accuracies,
         "training_time_seconds": training_time,
         "epochs_done": epochs_done,
+        
     }
 
     # Save results to JSON file
     with open(f"[{batch_size}]custom_cnn_results.json", "w") as f:
         json.dump(results, f)
 
-    print("Wyniki zapisane do custom_cnn_results.json")
+    print(f"Wyniki zapisane do [{batch_size}]custom_cnn_results.json")
 
 # plots
 epochs = np.arange(1, num_epochs + 1)
