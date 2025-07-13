@@ -1,0 +1,9 @@
+black==25.1.0
+cupy-cuda12x==13.4.1
+matplotlib==3.10.1
+numpy==1.26.4
+scikit-learn==1.6.1
+seaborn==0.13.2
+pytest==8.4.1
+
+
