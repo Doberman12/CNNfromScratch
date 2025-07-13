@@ -3,11 +3,13 @@ import numpy as np
 import cupy as cp
 import os
 
-class Data():
+
+class Data:
     """
     function to load images from a directory and return them as a list of numpy/cupy arrays.
     The images are resized to 128x128 and normalized to the range [0, 1]. The labels are extracted from the directory names.
     """
+
     def __init__(self, path, batch_size=64, use_cupy=True, shuffle=True):
         self.path = path
         self.use_cupy = use_cupy
@@ -15,7 +17,6 @@ class Data():
         self.shuffle = shuffle
         self.indices = None
         self.X, self.y = self.load_images()
-    
 
     def __iter__(self):
         self.current = 0
@@ -32,7 +33,6 @@ class Data():
 
         return self
 
-
     def __next__(self):
         """Get the next batch of data."""
         if self.current >= len(self.X):
@@ -44,8 +44,7 @@ class Data():
         batch_X = self.X[idx]
         batch_y = self.y[idx]
         return batch_X, batch_y
-    
-    
+
     def __len__(self):
         return (len(self.X) + self.batch_size - 1) // self.batch_size
 
@@ -54,22 +53,24 @@ class Data():
         Args:
             path (str): Path to the directory containing images.
             use_cupy (bool): If True, return images as cupy arrays, else as numpy arrays.
-        Returns:        
+        Returns:
             - X (stack): Stack of images as numpy/cupy arrays.
             - y (array): Array of indices.
-            
+
         """
-        cache_file = os.path.join(self.path, f"cached_data_{'cupy' if self.use_cupy else 'numpy'}.npz")
+        cache_file = os.path.join(
+            self.path, f"cached_data_{'cupy' if self.use_cupy else 'numpy'}.npz"
+        )
 
         if os.path.exists(cache_file):
             print(f"Loading cached dataset from {cache_file}")
             if self.use_cupy:
-                with open(cache_file, 'rb') as f:
+                with open(cache_file, "rb") as f:
                     data = cp.load(f)
-                    return data['X'], data['y']
+                    return data["X"], data["y"]
             else:
                 data = np.load(cache_file)
-                return data['X'], data['y']
+                return data["X"], data["y"]
         X = []
         y = []
         for dict_name in os.listdir(self.path):
@@ -77,12 +78,16 @@ class Data():
             if not os.path.isdir(dict_path):
                 continue
             for file_name in os.listdir(dict_path):
-                if not file_name.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
+                if not file_name.lower().endswith(
+                    (".png", ".jpg", ".jpeg", ".bmp", ".tiff")
+                ):
                     continue
                 file_path = os.path.join(dict_path, file_name)
                 try:
-                    image = Image.open(file_path).convert('L').resize((28, 28))
-                    image = np.array(image).astype(np.float32) / 255.0  # Normalize to [0, 1]
+                    image = Image.open(file_path).convert("L").resize((28, 28))
+                    image = (
+                        np.array(image).astype(np.float32) / 255.0
+                    )  # Normalize to [0, 1]
                     image = image[..., np.newaxis]  # Add channel dimension
                 except Exception as e:
                     print(f"Error loading image {file_path}: {e}")
@@ -93,15 +98,17 @@ class Data():
                 y.append(dict_name)
 
         X = cp.stack(X) if self.use_cupy else np.stack(X)
-        X = X.transpose(0, 3, 1, 2) # Transpose from (N, H, W, C) format to (N, C, H, W) format
-        
+        X = X.transpose(
+            0, 3, 1, 2
+        )  # Transpose from (N, H, W, C) format to (N, C, H, W) format
+
         # Convert labels to indices
         label_to_index = {label: index for index, label in enumerate(set(y))}
         y = [label_to_index[label] for label in y]
         y = cp.asarray(y) if self.use_cupy else np.asarray(y)
         print(f"Caching dataset to {cache_file}")
         if self.use_cupy:
-            with open(cache_file, 'wb') as f:
+            with open(cache_file, "wb") as f:
                 cp.savez(f, X=X, y=y)
         else:
             np.savez(cache_file, X=X, y=y)
