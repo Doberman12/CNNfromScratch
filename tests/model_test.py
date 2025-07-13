@@ -121,7 +121,7 @@ for batch_size in batch_sizes:
     "training_time_seconds": training_time,
     "epochs_done": epochs_done,}
 
-# Zapisz do pliku JSON, np. 'custom_cnn_results.json'
+# Save results to JSON file
     with open(F'[{batch_size}]custom_cnn_results.json', 'w') as f:
         json.dump(results, f)
 

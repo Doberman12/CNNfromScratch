@@ -2,11 +2,12 @@ from PIL import Image
 import numpy as np
 import cupy as cp
 import os
-"""
-function to load images from a directory and return them as a list of numpy/cupy arrays.
-The images are resized to 128x128 and normalized to the range [0, 1]. The labels are extracted from the directory names.
-"""
+
 class Data():
+    """
+    function to load images from a directory and return them as a list of numpy/cupy arrays.
+    The images are resized to 128x128 and normalized to the range [0, 1]. The labels are extracted from the directory names.
+    """
     def __init__(self, path, batch_size=64, use_cupy=True, shuffle=True):
         self.path = path
         self.use_cupy = use_cupy
@@ -134,6 +135,6 @@ class Data():
             obj.use_cupy = self.use_cupy
             obj.batch_size = self.batch_size
             obj.shuffle = self.shuffle
-            obj.path = self.path  # optional, for consistency
+            obj.path = self.path
 
         return train_data, val_data
