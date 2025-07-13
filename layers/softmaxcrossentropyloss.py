@@ -1,15 +1,18 @@
 from layers.base import Layer
 import cupy as cp
+
+
 class SoftmaxCrossEntropyLoss(Layer):
     """Softmax Cross Entropy Loss Layer
     Computes the softmax cross-entropy loss between logits and labels.
     This layer applies the softmax function to the logits and computes the cross-entropy loss.
     """
+
     def forward(self, logits, labels):
-        """        Forward pass of the softmax cross-entropy loss layer.
-        Args:   
+        """Forward pass of the softmax cross-entropy loss layer.
+        Args:
             logits (cupy.ndarray): Logits from the previous layer, shape (N, C).
-            labels (cupy.ndarray): True labels, shape (N,).     
+            labels (cupy.ndarray): True labels, shape (N,).
         Returns:
             cupy.ndarray: Computed loss value.
         """
@@ -23,7 +26,7 @@ class SoftmaxCrossEntropyLoss(Layer):
 
     def backward(self):
         """Backward pass of the softmax cross-entropy loss layer.
-        Computes the gradient of the loss with respect to the logits.   
+        Computes the gradient of the loss with respect to the logits.
         Returns:
             cupy.ndarray: Gradient of the loss with respect to the logits, shape (N, C).
         """

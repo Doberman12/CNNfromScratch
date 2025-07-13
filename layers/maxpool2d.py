@@ -2,6 +2,7 @@ import cupy as cp
 from layers.base import Layer
 from cupy.lib.stride_tricks import as_strided
 
+
 class MaxPool2D(Layer):
     """Max Pooling Layer Implementation
     Applies max pooling operation over 2D spatial dimensions.
@@ -9,6 +10,7 @@ class MaxPool2D(Layer):
     - kernel_size: Size of the pooling window (int)
     - stride: Stride of the pooling operation (int)
     """
+
     def __init__(self, kernel_size: int, stride: int):
         self.kernel_size = kernel_size
         self.stride = stride
@@ -74,14 +76,13 @@ class MaxPool2D(Layer):
                 cp.tile(cp.repeat(cp.arange(C), H_out * W_out), N),
                 cp.tile(cp.repeat(cp.arange(H_out), W_out), N * C),
                 cp.tile(cp.arange(W_out), N * C * H_out),
-                self.max_indices.ravel()
+                self.max_indices.ravel(),
             ),
-        dims=(N, C, H_out, W_out, self.kernel_size * self.kernel_size)
+            dims=(N, C, H_out, W_out, self.kernel_size * self.kernel_size),
         )
 
         dx_reshaped = dx_strided.reshape(-1, self.kernel_size * self.kernel_size)
         dx_reshaped[...] = 0
         dx_reshaped.ravel()[flat_indices] = grad_output.ravel()
-
 
         return dx
