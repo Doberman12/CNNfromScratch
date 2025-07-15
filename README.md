@@ -1,7 +1,6 @@
 # Implementation of a Convolutional Neural Network Using CuPy
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)
-![Issues](https://img.shields.io/badge/open%20issues-0-blue?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 ![Made with CuPy](https://img.shields.io/badge/made%20with-CuPy-1f425f?style=flat-square)
 
