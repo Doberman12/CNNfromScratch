@@ -3,8 +3,10 @@ import numpy as np
 import pytest
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from layers.conv2d import Conv2D
+
 
 @pytest.fixture
 def sample_data():
@@ -24,10 +26,12 @@ def sample_data():
 
     return layer, x, grad_output
 
+
 def test_forward_shape(sample_data):
     layer, x, _ = sample_data
     out = layer.forward(x)
     assert out.shape == (x.shape[0], layer.output_channels, x.shape[2], x.shape[3])
+
 
 def test_backward_shape(sample_data):
     layer, x, grad_output = sample_data
@@ -35,11 +39,13 @@ def test_backward_shape(sample_data):
     dx = layer.backward(grad_output)
     assert dx.shape == x.shape
 
+
 def test_grad_weights_shape(sample_data):
     layer, x, grad_output = sample_data
     layer.forward(x)
     layer.backward(grad_output)
     assert layer.dw.shape == layer.w.shape
+
 
 def test_grad_bias_shape(sample_data):
     layer, x, grad_output = sample_data
@@ -47,10 +53,12 @@ def test_grad_bias_shape(sample_data):
     layer.backward(grad_output)
     assert layer.db.shape == layer.b.shape
 
+
 def test_forward_no_nan(sample_data):
     layer, x, _ = sample_data
     out = layer.forward(x)
     assert not cp.isnan(out).any()
+
 
 def test_backward_no_nan(sample_data):
     layer, x, grad_output = sample_data
