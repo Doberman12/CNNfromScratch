@@ -1,10 +1,4 @@
-from layers.backend import xp as cp
-
-if cp.__name__ == "numpy":
-    from numpy.lib.stride_tricks import as_strided
-else:
-    from cupy.lib.stride_tricks import as_strided
-
+from layers.backend import xp as cp, as_strided
 import time
 
 
@@ -143,9 +137,6 @@ def col2im(col, input_shape, kernel_size, stride=1, padding=0):
     if padding == 0:
         return x_padded
     return x_padded[:, :, padding:-padding, padding:-padding]
-
-
-import cupy as cp
 
 
 class AdamOptimizer:
