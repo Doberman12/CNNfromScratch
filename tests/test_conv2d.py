@@ -1,11 +1,11 @@
-import cupy as cp
-import numpy as np
+
 import pytest
 import sys
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from layers.conv2d import Conv2D
+from layers.backend import xp as cp
 
 
 @pytest.fixture
