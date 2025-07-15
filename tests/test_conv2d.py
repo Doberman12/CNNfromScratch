@@ -11,7 +11,6 @@ print(f"USE_CPU = {os.getenv('USE_CPU')}")
 print(f"Backend xp: {xp.__name__}")
 
 
-
 @pytest.fixture
 def sample_data():
     batch_size = 2
