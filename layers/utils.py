@@ -139,9 +139,6 @@ def col2im(col, input_shape, kernel_size, stride=1, padding=0):
     return x_padded[:, :, padding:-padding, padding:-padding]
 
 
-import cupy as cp
-
-
 class AdamOptimizer:
     def __init__(self, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8):
         self.lr = learning_rate
