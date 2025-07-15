@@ -6,6 +6,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from layers.conv2d import Conv2D
 from layers.backend import xp as cp
 
+print(f"USE_CPU = {os.getenv('USE_CPU')}")
+from layers.backend import xp
+
+print(f"Backend xp: {xp.__name__}")
+
 
 @pytest.fixture
 def sample_data():
