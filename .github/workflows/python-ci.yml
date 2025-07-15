@@ -17,3 +17,6 @@ jobs:
       - name: Format with Black
         run: |
           black --check .
+      - name: Run tests
+        run: |  
+          USE_CPU=1 pytest

@@ -1,5 +1,10 @@
-import cupy as cp
-from cupy.lib.stride_tricks import as_strided
+from layers.backend import xp as cp
+
+if cp.__name__ == "numpy":
+    from numpy.lib.stride_tricks import as_strided
+else:
+    from cupy.lib.stride_tricks import as_strided
+
 import time
 
 
