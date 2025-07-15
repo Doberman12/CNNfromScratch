@@ -17,8 +17,6 @@ jobs:
       - name: Format with Black
         run: |
           black --check .
-      - name: Set environment variable
-        run: echo "USE_CPU=1" >> $GITHUB_ENV
       - name: Run tests
         run: |  
-          pytest
+          USE_CPU=1 pytest
