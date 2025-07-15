@@ -1,4 +1,4 @@
-from layers.backend import xp as cp, as_strideds
+from layers.backend import xp as cp, as_strided
 import time
 
 
