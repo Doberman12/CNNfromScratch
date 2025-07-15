@@ -1,5 +1,5 @@
 from layers.base import Layer
-import cupy as cp
+from layers.backend import xp as cp
 from layers.utils import im2col, col2im
 
 """
