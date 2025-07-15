@@ -6,10 +6,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from layers.conv2d import Conv2D
 from layers.backend import xp as cp
 
-print(f"USE_CPU = {os.getenv('USE_CPU')}")
-from layers.backend import xp
 
+print(f"USE_CPU = {os.getenv('USE_CPU')}")
 print(f"Backend xp: {xp.__name__}")
+
 
 
 @pytest.fixture
@@ -32,6 +32,8 @@ def sample_data():
 
 
 def test_forward_shape(sample_data):
+    print(f"USE_CPU = {os.getenv('USE_CPU')}")
+    print(f"Backend xp: {xp.__name__}")
     layer, x, _ = sample_data
     out = layer.forward(x)
     assert out.shape == (x.shape[0], layer.output_channels, x.shape[2], x.shape[3])
