@@ -2,12 +2,10 @@ from layers.base import Layer
 from layers.backend import xp
 from layers.utils import im2col_conv, col2im_conv
 
-"""
-Conv2D Layer Implementation
-"""
-
 
 class Conv2D(Layer):
+    """Conv2D Layer Implementation."""
+
     def __init__(
         self,
         input_channels: int,
@@ -35,7 +33,7 @@ class Conv2D(Layer):
             cupy.ndarray: Output tensor of shape (N, C_out, H_out, W_out).
         """
         self.x = x
-        N, C_in, H, W = x.shape
+        N, _, H, W = x.shape
         x_col = im2col_conv(x, self.kernel_size, self.stride, self.padding)
         w_col = self.w.reshape(self.output_channels, -1)
         out = xp.dot(x_col, w_col.T) + self.b
@@ -56,7 +54,7 @@ class Conv2D(Layer):
         Returns:
             xp.ndarray: Gradient with respect to the input, shape (N, C_in, H, W)
         """
-        N, C_out, H_out, W_out = grad_output.shape
+        _, C_out, H_out, W_out = grad_output.shape
 
         # Reshape grad_output to (N * H_out * W_out, C_out)
         grad_output_reshaped = grad_output.transpose(0, 2, 3, 1).reshape(-1, C_out)

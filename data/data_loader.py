@@ -48,20 +48,7 @@ class Data:
     def __len__(self):
         return (len(self.X) + self.batch_size - 1) // self.batch_size
 
-    def load_images(self):
-        """Load images from a directory and return them as a X (stack of numpy/cupy arrays) and y (index).
-        Args:
-            path (str): Path to the directory containing images.
-            use_cupy (bool): If True, return images as cupy arrays, else as numpy arrays.
-        Returns:
-            - X (stack): Stack of images as numpy/cupy arrays.
-            - y (array): Array of indices.
-
-        """
-        cache_file = os.path.join(
-            self.path, f"cached_data_{'cupy' if self.use_cupy else 'numpy'}.npz"
-        )
-
+    def load_from_cache(self, cache_file):
         if os.path.exists(cache_file):
             print(f"Loading cached dataset from {cache_file}")
             if self.use_cupy:
@@ -71,6 +58,19 @@ class Data:
             else:
                 data = np.load(cache_file)
                 return data["X"], data["y"]
+        return None
+
+    def process_image(self, file_path):
+        try:
+            image = Image.open(file_path).convert("L").resize((28, 28))
+            image = np.array(image).astype(np.float32) / 255.0
+            image = image[..., np.newaxis]
+            return cp.asarray(image) if self.use_cupy else image
+        except Exception as e:
+            print(f"Error loading image {file_path}: {e}")
+            return None
+
+    def scan_directories(self):
         X = []
         y = []
         for dict_name in os.listdir(self.path):
@@ -83,29 +83,37 @@ class Data:
                 ):
                     continue
                 file_path = os.path.join(dict_path, file_name)
-                try:
-                    image = Image.open(file_path).convert("L").resize((28, 28))
-                    image = (
-                        np.array(image).astype(np.float32) / 255.0
-                    )  # Normalize to [0, 1]
-                    image = image[..., np.newaxis]  # Add channel dimension
-                except Exception as e:
-                    print(f"Error loading image {file_path}: {e}")
-                    continue
-                if self.use_cupy:
-                    image = cp.asarray(image)
-                X.append(image)
-                y.append(dict_name)
+                image = self.process_image(file_path)
+                if image is not None:
+                    X.append(image)
+                    y.append(dict_name)
+        return X, y
 
+    def load_images(self):
+        """Load images from a directory and return them as a X (stack of numpy/cupy arrays) and y (index).
+        Args:
+            path (str): Path to the directory containing images.
+            use_cupy (bool): If True, return images as cupy arrays, else as numpy arrays.
+        Returns:
+            - X (stack): Stack of images as numpy/cupy arrays.
+            - y (array): Array of indices.
+        """
+        cache_file = os.path.join(
+            self.path, f"cached_data_{'cupy' if self.use_cupy else 'numpy'}.npz"
+        )
+
+        cached = self.load_from_cache(cache_file)
+        if cached:
+            return cached
+
+        X, y = self.scan_directories()
         X = cp.stack(X) if self.use_cupy else np.stack(X)
-        X = X.transpose(
-            0, 3, 1, 2
-        )  # Transpose from (N, H, W, C) format to (N, C, H, W) format
+        X = X.transpose(0, 3, 1, 2)
 
-        # Convert labels to indices
-        label_to_index = {label: index for index, label in enumerate(set(y))}
+        label_to_index = {label: idx for idx, label in enumerate(set(y))}
         y = [label_to_index[label] for label in y]
         y = cp.asarray(y) if self.use_cupy else np.asarray(y)
+
         print(f"Caching dataset to {cache_file}")
         if self.use_cupy:
             with open(cache_file, "wb") as f:

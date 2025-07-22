@@ -65,4 +65,3 @@ This implementation confirms the feasibility of building a performant CNN purely
 A full project report detailing methodology, implementation, results, and analysis is available in the [`DOCS`](./DOCS) folder:
 
 [Project Report (PDF)](./DOCS/CNN_raport.pdf)
-
