@@ -50,7 +50,7 @@ def prepare_col2im(input_shape, kernel_size, stride=1, padding=0):
 
 
 def col2im_conv(cols, input_shape, kernel_size, stride=1, padding=0):
-    N, C, H, W, H_p, W_p, H_out, W_out, K = prepare_col2im(
+    N, C, _, W, H_p, W_p, H_out, W_out, K = prepare_col2im(
         input_shape, kernel_size, stride, padding
     )
 
