@@ -1,4 +1,4 @@
-__all__ = ["xp", "as_strided"]
+__all__ = ["xp"]
 import os
 
 USE_CPU = os.getenv("USE_CPU", "0") == "1"

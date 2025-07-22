@@ -1,4 +1,3 @@
-import pytest
 import sys
 import os
 
@@ -25,7 +24,3 @@ def test_shape_after_forward():
     pool = MaxPool2D(kernel_size=2, stride=2)
     out = pool.forward(x)
     assert out.shape == (2, 3, 4, 4), f"Expected shape (2, 3, 4, 4), got {out.shape}"
-
-
-def test_shape_after_backward():
-    x = xp.random.rand(2, 2, 6, 6)
