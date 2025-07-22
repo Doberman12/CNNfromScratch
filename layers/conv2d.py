@@ -54,7 +54,7 @@ class Conv2D(Layer):
         Returns:
             xp.ndarray: Gradient with respect to the input, shape (N, C_in, H, W)
         """
-        _, C_out, _, W_out = grad_output.shape
+        _, C_out, _, _ = grad_output.shape
 
         # Reshape grad_output to (N * H_out * W_out, C_out)
         grad_output_reshaped = grad_output.transpose(0, 2, 3, 1).reshape(-1, C_out)
