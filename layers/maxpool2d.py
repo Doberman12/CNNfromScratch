@@ -1,6 +1,5 @@
-import cupy as cp
 from layers.base import Layer
-from cupy.lib.stride_tricks import as_strided
+from layers.backend import xp as cp, as_strided
 
 
 class MaxPool2D(Layer):
