@@ -1,4 +1,4 @@
-import cupy as cp
+from layers.backend import xp
 from layers.base import Layer
 
 
@@ -12,7 +12,7 @@ class Dropout(Layer):
         if self.training:
 
             keep_prob = 1 - self.drop_prob
-            self.mask = (cp.random.rand(*x.shape) < keep_prob) / keep_prob
+            self.mask = (xp.random.rand(*x.shape) < keep_prob) / keep_prob
             return x * self.mask
         else:
 

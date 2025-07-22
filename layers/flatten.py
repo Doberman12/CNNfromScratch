@@ -1,5 +1,4 @@
 from layers.base import Layer
-import cupy as cp
 
 
 class Flatten(Layer):

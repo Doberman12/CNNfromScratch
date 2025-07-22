@@ -1,6 +1,6 @@
 from layers.base import Layer
 from layers.backend import xp as cp
-from layers.utils import im2col, col2im
+from layers.utils import im2col_conv, col2im_conv
 
 """
 Conv2D Layer Implementation
@@ -36,7 +36,7 @@ class Conv2D(Layer):
         """
         self.x = x
         N, C_in, H, W = x.shape
-        x_col = im2col(x, self.kernel_size, self.stride, self.padding)
+        x_col = im2col_conv(x, self.kernel_size, self.stride, self.padding)
         w_col = self.w.reshape(self.output_channels, -1)
         out = cp.dot(x_col, w_col.T) + self.b
 
@@ -62,7 +62,7 @@ class Conv2D(Layer):
         grad_output_reshaped = grad_output.transpose(0, 2, 3, 1).reshape(-1, C_out)
 
         # im2col of input from forward pass
-        x_col = im2col(
+        x_col = im2col_conv(
             self.x, self.kernel_size, self.stride, self.padding
         )  # shape: (N * H_out * W_out, C_in * K * K)
 
@@ -78,7 +78,9 @@ class Conv2D(Layer):
         dx_col = cp.dot(
             grad_output_reshaped, w_col
         )  # shape: (N * H_out * W_out, C_in * K * K)
-        dx = col2im(dx_col, self.x.shape, self.kernel_size, self.stride, self.padding)
+        dx = col2im_conv(
+            dx_col, self.x.shape, self.kernel_size, self.stride, self.padding
+        )
 
         # Save gradients
         self.dw = dw / self.x.shape[0]  # Average over batch size

@@ -1,4 +1,3 @@
-import cupy as cp
 from layers.base import Layer
 
 
