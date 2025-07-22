@@ -38,6 +38,8 @@ def test_backward_output_shape(dense_layer, input_tensor):
 def test_backward_gradient_values(dense_layer, input_tensor):
     dense_layer.forward(input_tensor)
     grad_output = xp.array([[1.0, 2.0, 3.0]])
+    dense_layer.backward(grad_output)
+
     expected_dw = xp.dot(input_tensor.T, grad_output)
     expected_db = xp.sum(grad_output, axis=0)
 
