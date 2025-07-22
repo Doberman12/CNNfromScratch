@@ -73,7 +73,6 @@ def im2col_pool(x, kernel_size, stride=1, padding=0):
 
 
 def col2im_pool(cols, input_shape, kernel_size, stride=1, padding=0):
-
     N, C, H, W = input_shape
     K = kernel_size
 

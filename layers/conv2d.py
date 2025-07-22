@@ -1,5 +1,5 @@
 from layers.base import Layer
-from layers.backend import xp as cp
+from layers.backend import xp
 from layers.utils import im2col_conv, col2im_conv
 
 """
@@ -22,10 +22,10 @@ class Conv2D(Layer):
         self.stride = stride
         self.padding = padding
         self.w = (
-            cp.random.randn(output_channels, input_channels, kernel_size, kernel_size)
+            xp.random.randn(output_channels, input_channels, kernel_size, kernel_size)
             * 0.01
         )  # Initialize weights
-        self.b = cp.zeros(output_channels)  # Initialize biases
+        self.b = xp.zeros(output_channels)  # Initialize biases
 
     def forward(self, x):
         """Forward pass of the convolutional layer.
@@ -38,7 +38,7 @@ class Conv2D(Layer):
         N, C_in, H, W = x.shape
         x_col = im2col_conv(x, self.kernel_size, self.stride, self.padding)
         w_col = self.w.reshape(self.output_channels, -1)
-        out = cp.dot(x_col, w_col.T) + self.b
+        out = xp.dot(x_col, w_col.T) + self.b
 
         H_out = (H + 2 * self.padding - self.kernel_size) // self.stride + 1
         W_out = (W + 2 * self.padding - self.kernel_size) // self.stride + 1
@@ -51,10 +51,10 @@ class Conv2D(Layer):
         Backward pass of the convolutional layer.
 
         Args:
-            grad_output (cp.ndarray): Gradient of the loss with respect to the output of the layer,
+            grad_output (xp.ndarray): Gradient of the loss with respect to the output of the layer,
                                     shape (N, C_out, H_out, W_out)
         Returns:
-            cp.ndarray: Gradient with respect to the input, shape (N, C_in, H, W)
+            xp.ndarray: Gradient with respect to the input, shape (N, C_in, H, W)
         """
         N, C_out, H_out, W_out = grad_output.shape
 
@@ -67,7 +67,7 @@ class Conv2D(Layer):
         )  # shape: (N * H_out * W_out, C_in * K * K)
 
         # Gradient w.r.t. weights
-        dw = cp.dot(grad_output_reshaped.T, x_col)
+        dw = xp.dot(grad_output_reshaped.T, x_col)
         dw = dw.reshape(self.w.shape)
 
         # Gradient w.r.t. biases
@@ -75,7 +75,7 @@ class Conv2D(Layer):
 
         # Gradient w.r.t. input
         w_col = self.w.reshape(C_out, -1)
-        dx_col = cp.dot(
+        dx_col = xp.dot(
             grad_output_reshaped, w_col
         )  # shape: (N * H_out * W_out, C_in * K * K)
         dx = col2im_conv(

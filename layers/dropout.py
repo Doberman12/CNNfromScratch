@@ -10,16 +10,13 @@ class Dropout(Layer):
 
     def forward(self, x):
         if self.training:
-
             keep_prob = 1 - self.drop_prob
             self.mask = (xp.random.rand(*x.shape) < keep_prob) / keep_prob
             return x * self.mask
         else:
-
             return x
 
     def backward(self, grad_output):
-
         if self.training and self.mask is not None:
             return grad_output * self.mask
         else:
