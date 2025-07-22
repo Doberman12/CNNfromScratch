@@ -1,142 +1,105 @@
-from layers.backend import xp as cp, as_strided
-import time
+from layers.backend import xp
 
 
-def im2col_loop(X, kernel_size: int, stride=1, padding=0):
-    """
-    Convert a 4D tensor into a 2D matrix for convolution operations.
-
-    Parameters:
-    - X: Input stack of shape (N, C, H, W)
-    - kernel_size: Size of the convolution kernel (int)
-    - stride: Stride of the convolution (int)
-    - padding: Padding added to the input (int)
-
-    Returns:
-    - A 2D matrix where each column corresponds to a sliding window of the input tensor.
-    """
-    N, C, H, W = X.shape
-
-    # Calculate output dimensions
-    out_height = (H + 2 * padding - kernel_size) // stride + 1
-    out_width = (W + 2 * padding - kernel_size) // stride + 1
-
-    # Apply padding
-    X_padded = cp.pad(X, ((0, 0), (0, 0), (padding, padding), (padding, padding)))
-
-    # Create output matrix
-    col = cp.zeros((N, C * kernel_size * kernel_size, out_height * out_width))
-
-    for h in range(out_height):
-        for w in range(out_width):
-            h_start = h * stride
-            w_start = w * stride
-            h_end = h_start + kernel_size
-            w_end = w_start + kernel_size
-
-            col[:, :, h * out_width + w] = X_padded[
-                :, :, h_start:h_end, w_start:w_end
-            ].reshape(N, C * kernel_size * kernel_size)
-
-    return col.transpose(0, 2, 1).reshape(-1, C * kernel_size * kernel_size)
-
-
-def test_im2col(batch_size):
-    images = cp.random.randn(batch_size, 3, 224, 224).astype(cp.float32)
-    cp.cuda.Device(0).synchronize()
-    start = time.time()
-    y = im2col_loop(images, kernel_size=3, stride=1, padding=1)
-    cp.cuda.Device(0).synchronize()
-    end = time.time()
-    mem = cp.get_default_memory_pool().used_bytes() / (1024**2)  # Convert bytes to MB
-    print(
-        f"[LOOPS]Batch {batch_size}: Time = {end - start:.4f}s, Memory = {mem:.2f} MB"
-    )
-
-
-def im2col(X, kernel_size, stride=1, padding=1):
-    """
-    Convert a 4D tensor into a 2D matrix for convolution operations using cupy.
-    Parameters:
-    - X: Input stack of shape (N, C, H, W)
-    - kernel_size: Size of the convolution kernel (int)
-    - stride: Stride of the convolution (int)
-    - padding: Padding added to the input (int)
-    Returns:
-    - A 2D matrix where each column corresponds to a sliding window of the input tensor.
-    """
-    N, C, H, W = X.shape
+def im2col_conv(x, kernel_size, stride=1, padding=0):
+    N, C, H, W = x.shape
     K = kernel_size
 
-    # Padding
     if padding > 0:
-        X = cp.pad(X, ((0, 0), (0, 0), (padding, padding), (padding, padding)))
+        x = xp.pad(x, ((0, 0), (0, 0), (padding, padding), (padding, padding)))
 
     H_out = (H + 2 * padding - K) // stride + 1
     W_out = (W + 2 * padding - K) // stride + 1
 
-    # Strides
-    s0, s1, s2, s3 = X.strides
-    shape = (N, C, H_out, W_out, K, K)
-    strides = (s0, s1, s2 * stride, s3 * stride, s2, s3)
+    # Tworzymy pustą macierz
+    cols = xp.empty((N, C, K, K, H_out, W_out), dtype=x.dtype)
 
-    patches = as_strided(X, shape=shape, strides=strides)
-    patches = patches.reshape(N, C, H_out * W_out, K * K)
-    patches = patches.transpose(0, 2, 1, 3).reshape(N * H_out * W_out, C * K * K)
+    for i in range(K):
+        for j in range(K):
+            cols[:, :, i, j, :, :] = x[
+                :, :, i : i + stride * H_out : stride, j : j + stride * W_out : stride
+            ]
 
-    return patches
-
-
-def test__opt_im2col(batch_size):
-    images = cp.random.randn(batch_size, 3, 224, 224).astype(cp.float32)
-    cp.cuda.Device(0).synchronize()
-    start = time.time()
-    y = im2col(images, kernel_size=3, stride=1, padding=1)
-    cp.cuda.Device(0).synchronize()
-    end = time.time()
-    mem = cp.get_default_memory_pool().used_bytes() / (1024**2)  # Convert bytes to MB
-    print(
-        f"[As_STRIDED] Batch {batch_size}: Time = {end - start:.4f}s, Memory = {mem:.2f} MB"
-    )
+    cols = cols.transpose(0, 4, 5, 1, 2, 3).reshape(N * H_out * W_out, C * K * K)
+    return cols
 
 
-def col2im(col, input_shape, kernel_size, stride=1, padding=0):
-    """
-    Convert a 2D matrix back to a 4D tensor.
-
-    Parameters:
-    - col: Input 2D matrix
-    - input_shape: Shape of the original input tensor (N, C, H, W)
-    - kernel_size: Size of the convolution kernel (int)
-    - stride: Stride of the convolution (int)
-    - padding: Padding added to the input (int)
-
-    Returns:
-    - A 4D tensor reconstructed from the 2D matrix.
-    """
+def col2im_conv(cols, input_shape, kernel_size, stride=1, padding=0):
     N, C, H, W = input_shape
     K = kernel_size
 
+    H_padded, W_padded = H + 2 * padding, W + 2 * padding
+    H_out = (H_padded - K) // stride + 1
+    W_out = (W_padded - K) // stride + 1
+
+    cols_reshaped = cols.reshape(N, H_out, W_out, C, K, K).transpose(0, 3, 4, 5, 1, 2)
+
+    out = xp.zeros((N, C, H_padded, W_padded), dtype=cols.dtype)
+
+    for i in range(K):
+        for j in range(K):
+            out[
+                :, :, i : i + stride * H_out : stride, j : j + stride * W_out : stride
+            ] += cols_reshaped[:, :, i, j, :, :]
+
+    return (
+        out[:, :, padding : H_padded - padding, padding : W_padded - padding]
+        if padding > 0
+        else out
+    )
+
+
+def im2col_pool(x, kernel_size, stride=1, padding=0):
+    N, C, H, W = x.shape
+    K = kernel_size
+
+    if padding > 0:
+        x = xp.pad(x, ((0, 0), (0, 0), (padding, padding), (padding, padding)))
+
     H_out = (H + 2 * padding - K) // stride + 1
     W_out = (W + 2 * padding - K) // stride + 1
 
+    cols = xp.empty((N, C, K, K, H_out, W_out), dtype=x.dtype)
+
+    for i in range(K):
+        for j in range(K):
+            cols[:, :, i, j, :, :] = x[
+                :, :, i : i + stride * H_out : stride, j : j + stride * W_out : stride
+            ]
+
+    cols = cols.reshape(N, C, K * K, H_out * W_out)
+    cols = cols.transpose(0, 1, 3, 2).reshape(N * C * H_out * W_out, K * K)
+    return cols
+
+
+def col2im_pool(cols, input_shape, kernel_size, stride=1, padding=0):
+
+    N, C, H, W = input_shape
+    K = kernel_size
+
     H_padded, W_padded = H + 2 * padding, W + 2 * padding
-    x_padded = cp.zeros((N, C, H_padded, W_padded), dtype=col.dtype)
+    H_out = (H_padded - K) // stride + 1
+    W_out = (W_padded - K) // stride + 1
 
-    s0, s1, s2, s3 = x_padded.strides
-    shape = (N, C, H_out, W_out, K, K)
-    strides = (s0, s1, s2 * stride, s3 * stride, s2, s3)
+    cols_reshaped = cols.reshape(N, C, H_out * W_out, K * K).transpose(0, 1, 3, 2)
+    cols_reshaped = cols_reshaped.reshape(N * C, K * K, H_out, W_out)
 
-    x_strided = as_strided(x_padded, shape=shape, strides=strides)
+    out = xp.zeros((N * C, H_padded, W_padded), dtype=cols.dtype)
 
-    col_reshaped = (
-        col.reshape(N, H_out * W_out, C, K * K).transpose(0, 2, 1, 3).reshape(shape)
+    idx = 0
+    for i in range(K):
+        for j in range(K):
+            out[
+                :, i : i + stride * H_out : stride, j : j + stride * W_out : stride
+            ] += cols_reshaped[:, idx, :, :]
+            idx += 1
+
+    out = out.reshape(N, C, H_padded, W_padded)
+    return (
+        out[:, :, padding : H_padded - padding, padding : W_padded - padding]
+        if padding > 0
+        else out
     )
-    x_strided += col_reshaped
-
-    if padding == 0:
-        return x_padded
-    return x_padded[:, :, padding:-padding, padding:-padding]
 
 
 class AdamOptimizer:
@@ -168,8 +131,8 @@ class AdamOptimizer:
             grad = getattr(layer, f"d{param_name}")
             key = f"{id(layer)}_{param_name}"
             if key not in self.m:
-                self.m[key] = cp.zeros_like(param)
-                self.v[key] = cp.zeros_like(param)
+                self.m[key] = xp.zeros_like(param)
+                self.v[key] = xp.zeros_like(param)
 
             # Update biased first moment estimate
             self.m[key] = self.beta1 * self.m[key] + (1 - self.beta1) * grad
@@ -181,7 +144,7 @@ class AdamOptimizer:
             v_hat = self.v[key] / (1 - self.beta2**self.t)
 
             # Update parameters
-            param -= self.lr * m_hat / (cp.sqrt(v_hat) + self.epsilon)
+            param -= self.lr * m_hat / (xp.sqrt(v_hat) + self.epsilon)
             setattr(layer, param_name, param)
 
 
@@ -214,5 +177,5 @@ class Sequential:
 
 
 def compute_accuracy(logits, labels):
-    predictions = cp.argmax(logits, axis=1)
-    return cp.mean(predictions == labels)
+    predictions = xp.argmax(logits, axis=1)
+    return xp.mean(predictions == labels)

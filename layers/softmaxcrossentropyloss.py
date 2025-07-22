@@ -1,5 +1,5 @@
 from layers.base import Layer
-import cupy as cp
+from layers.backend import xp
 
 
 class SoftmaxCrossEntropyLoss(Layer):
@@ -17,12 +17,12 @@ class SoftmaxCrossEntropyLoss(Layer):
             cupy.ndarray: Computed loss value.
         """
         self.labels = labels
-        logits_shifted = logits - cp.max(logits, axis=1, keepdims=True)
-        exp_logits = cp.exp(logits_shifted)
-        self.probs = exp_logits / cp.sum(exp_logits, axis=1, keepdims=True)
+        logits_shifted = logits - xp.max(logits, axis=1, keepdims=True)
+        exp_logits = xp.exp(logits_shifted)
+        self.probs = exp_logits / xp.sum(exp_logits, axis=1, keepdims=True)
 
-        log_likelihood = -cp.log(self.probs[cp.arange(len(labels)), labels])
-        return cp.mean(log_likelihood)
+        log_likelihood = -xp.log(self.probs[xp.arange(len(labels)), labels])
+        return xp.mean(log_likelihood)
 
     def backward(self):
         """Backward pass of the softmax cross-entropy loss layer.
@@ -31,5 +31,5 @@ class SoftmaxCrossEntropyLoss(Layer):
             cupy.ndarray: Gradient of the loss with respect to the logits, shape (N, C).
         """
         grad = self.probs.copy()
-        grad[cp.arange(len(self.labels)), self.labels] -= 1
+        grad[xp.arange(len(self.labels)), self.labels] -= 1
         return grad / len(self.labels)

@@ -4,11 +4,7 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from layers.conv2d import Conv2D
-from layers.backend import xp as cp
-
-
-print(f"USE_CPU = {os.getenv('USE_CPU')}")
-print(f"Backend xp: {cp.__name__}")
+from layers.backend import xp
 
 
 @pytest.fixture
@@ -22,8 +18,8 @@ def sample_data():
     stride = 1
     padding = 1
 
-    x = cp.random.randn(batch_size, input_channels, height, width)
-    grad_output = cp.random.randn(batch_size, output_channels, height, width)
+    x = xp.random.randn(batch_size, input_channels, height, width)
+    grad_output = xp.random.randn(batch_size, output_channels, height, width)
 
     layer = Conv2D(input_channels, output_channels, kernel_size, stride, padding)
 
@@ -31,8 +27,6 @@ def sample_data():
 
 
 def test_forward_shape(sample_data):
-    print(f"USE_CPU = {os.getenv('USE_CPU')}")
-    print(f"Backend xp: {cp.__name__}")
     layer, x, _ = sample_data
     out = layer.forward(x)
     assert out.shape == (x.shape[0], layer.output_channels, x.shape[2], x.shape[3])
@@ -62,11 +56,11 @@ def test_grad_bias_shape(sample_data):
 def test_forward_no_nan(sample_data):
     layer, x, _ = sample_data
     out = layer.forward(x)
-    assert not cp.isnan(out).any()
+    assert not xp.isnan(out).any()
 
 
 def test_backward_no_nan(sample_data):
     layer, x, grad_output = sample_data
     layer.forward(x)
     dx = layer.backward(grad_output)
-    assert not cp.isnan(dx).any()
+    assert not xp.isnan(dx).any()
