@@ -1,5 +1,5 @@
 from layers.base import Layer
-from layers.backend import xp as cp
+from layers.backend import xp
 from layers.utils import im2col_pool, col2im_pool
 
 
@@ -25,8 +25,8 @@ class MaxPool2D(Layer):
         S = self.stride
 
         x_col = im2col_pool(x, kernel_size=K, stride=S, padding=0)
-        self.max_indices = cp.argmax(x_col, axis=1)
-        out = cp.max(x_col, axis=1)
+        self.max_indices = xp.argmax(x_col, axis=1)
+        out = xp.max(x_col, axis=1)
 
         N, C, H, W = x.shape
         H_out = (H - K) // S + 1
@@ -49,8 +49,8 @@ class MaxPool2D(Layer):
         W_out = (W - K) // S + 1
 
         grad_flat = grad_output.reshape(N * C * H_out * W_out)
-        dx_col = cp.zeros((grad_flat.shape[0], K * K), dtype=grad_output.dtype)
-        dx_col[cp.arange(dx_col.shape[0]), self.max_indices] = grad_flat
+        dx_col = xp.zeros((grad_flat.shape[0], K * K), dtype=grad_output.dtype)
+        dx_col[xp.arange(dx_col.shape[0]), self.max_indices] = grad_flat
 
         dx = col2im_pool(
             dx_col, input_shape=self.input_shape, kernel_size=K, stride=S, padding=0

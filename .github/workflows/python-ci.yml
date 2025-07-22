@@ -19,4 +19,4 @@ jobs:
           black --check .
       - name: Run tests
         run: |  
-          USE_CPU=1 pytest
+          USE_CPU=1 pytest --cov=layers --cov-report=xml
