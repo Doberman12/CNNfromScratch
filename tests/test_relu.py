@@ -3,8 +3,7 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from layers.backend import xp
-from layers.relu import ReLU
-
+from layers.ReLU import ReLU
 
 def test_relu_forward():
     relu = ReLU()
