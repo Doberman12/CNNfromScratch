@@ -1,8 +1,3 @@
-"""
-base class for all layers
-"""
-
-
 class Layer:
     def __init__(self, name: str = None):
         """
