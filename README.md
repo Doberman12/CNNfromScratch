@@ -1,9 +1,11 @@
 # Implementation of a Convolutional Neural Network Using CuPy
 
 [![Build status](https://github.com/Doberman12/CNNfromScratch/actions/workflows/python-ci.yml/badge.svg)](https://github.com/Doberman12/CNNfromScratch/actions/workflows/python-ci.yml)
-![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/f0cf20a8fdb747bbb32a26b6e08c9261)](https://app.codacy.com/gh/Doberman12/CNNfromScratch/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Test coverage](https://codecov.io/github/Doberman12/CNNfromScratch/graph/badge.svg?token=6HYBORPF0L)](https://codecov.io/github/Doberman12/CNNfromScratch)
+![Made with Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![Made with CuPy](https://img.shields.io/badge/made%20with-CuPy-1f425f?style=flat-square)
-
+![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 ## Table of Contents
 
 - [Overview](#overview)
