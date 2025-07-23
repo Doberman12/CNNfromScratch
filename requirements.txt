@@ -6,4 +6,4 @@ scikit-learn==1.6.1
 seaborn==0.13.2
 pytest==8.4.1
 pytest-cov
-
+ruff
