@@ -19,7 +19,7 @@ def input_tensor():
 
 def test_forward_output_shape(dense_layer, input_tensor):
     output = dense_layer.forward(input_tensor)
-    assert output.shape == (1, 3), "Output shape should be (N, output_size)"
+    assert output.shape == (1, 3)
 
 
 def test_forward_computation_consistency(dense_layer, input_tensor):
@@ -32,7 +32,7 @@ def test_backward_output_shape(dense_layer, input_tensor):
     dense_layer.forward(input_tensor)
     grad_output = xp.ones((1, 3))
     grad_input = dense_layer.backward(grad_output)
-    assert grad_input.shape == (1, 4), "Backward output shape should be (N, input_size)"
+    assert grad_input.shape == (1, 4)
 
 
 def test_backward_gradient_values(dense_layer, input_tensor):
