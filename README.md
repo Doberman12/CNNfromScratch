@@ -15,8 +15,7 @@
 - [Results](#results)
 - [Conclusion](#conclusion)
 - [Documentation](#documentation)
-- [Kanban board](#️kanban-board)
-
+- [To do](#️to-do)
 ---
 
 ## Overview
@@ -63,7 +62,7 @@ A full project report detailing methodology, implementation, results, and analys
 
 ---
 
-## Kanban board
+## To do
 
 Track the progress of the project here: [GitHub Project Board](https://github.com/users/Doberman12/projects/3)
 
