@@ -15,6 +15,7 @@
 - [Results](#results)
 - [Conclusion](#conclusion)
 - [Documentation](#documentation)
+- [Kanban board](#️kanban-board)
 
 ---
 
@@ -48,14 +49,6 @@ CuPy is an open-source array library for GPU-accelerated computing with Python. 
 
 ---
 
-## Results
-
-- Achieved maximum test accuracy of **95.36%** with batch size 128
-- Performance is comparable to an equivalent TensorFlow implementation in both accuracy and convergence speed
-- Training times and memory usage optimized using vectorized operations and strided memory access
-
----
-
 ## Conclusion
 
 This implementation confirms the feasibility of building a performant CNN purely with CuPy, highlighting both computational efficiency and the educational value of low-level deep learning architectures. It provides a foundation for extending the model to more complex datasets and deeper network designs.---
@@ -67,3 +60,9 @@ This implementation confirms the feasibility of building a performant CNN purely
 A full project report detailing methodology, implementation, results, and analysis is available in the [`DOCS`](./DOCS) folder:
 
 [Project Report (PDF)](./DOCS/CNN_raport.pdf)
+
+---
+
+## Kanban Board
+
+Track the progress of the project here: [GitHub Project Board](https://github.com/users/Doberman12/projects/3)
