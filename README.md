@@ -15,7 +15,8 @@
 - [Results](#results)
 - [Conclusion](#conclusion)
 - [Documentation](#documentation)
-- [To do](#️to-do)
+- [Future](#️future)
+
 ---
 
 ## Overview
@@ -62,7 +63,7 @@ A full project report detailing methodology, implementation, results, and analys
 
 ---
 
-## To do
+## Future
 
 Track the progress of the project here: [GitHub Project Board](https://github.com/users/Doberman12/projects/3)
 
