@@ -15,7 +15,6 @@
 - [Results](#results)
 - [Conclusion](#conclusion)
 - [Documentation](#documentation)
-- [Future](#️future)
 
 ---
 
@@ -62,8 +61,6 @@ A full project report detailing methodology, implementation, results, and analys
 [Project Report (PDF)](./DOCS/CNN_raport.pdf)
 
 ---
-
-## Future
 
 Track the progress of the project here: [GitHub Project Board](https://github.com/users/Doberman12/projects/3)
 
